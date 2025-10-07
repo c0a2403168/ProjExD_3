@@ -25,6 +25,26 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+class Explosion:
+    def __init__(self, bomb:"Bomb"):
+        """
+        爆発エフェクトの初期設定
+        """
+        img = pg.image.load("fig/explosion.gif")
+        self.img = [img,pg.transform.flip(img, True, False)] #上下左右にflipしたもの
+        self.rct = self.img[0].get_rect()
+        self.rct.center = bomb.rct.center
+        self.life = 10  # 爆発エフェクトの時間
+
+    def update(self, screen: pg.Surface):
+        """
+        爆発エフェクトの演出
+        """
+        self.life -= 1
+        screen.blit(self.img[self.life%2], self.rct)
+
+        
+
 class score:
     def __init__(self):
         """
@@ -175,6 +195,8 @@ def main():
 
     beams = []  # ビームの空リスト
 
+    Explosion_list = []  # 爆発エフェクトの空リスト
+
     score_hyogi = score()  # スコアクラスのインスタンス生成
     beam = None  # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
@@ -207,10 +229,17 @@ def main():
                     # ビームが爆弾に当たったら，爆弾を消す
                     bombs[b], beam = None, None
                     score_hyogi.score += 1 # スコアを1点加算
+                    Explosion_list.append(Explosion(bomb))  # 爆発エフェクトを追加
                     bird.change_img(6, screen)  # ビームが爆弾に当たったら，こうかとん画像を切り替える
 
+        for explosion in Explosion_list:
+            if explosion.life > 0:
+                explosion.update(screen)
+            else:
+                Explosion_list.remove(explosion)
+
         bombs = [bomb for bomb in bombs if bomb is not None] 
-        beams = [beam for beam in beams if check_bound(beam.rct)[0 ]]
+        beams = [beam for beam in beams if check_bound(beam.rct)[0]]  # 画面外のビームを消す
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
@@ -218,6 +247,8 @@ def main():
             beam.update(screen)   
         for bomb in bombs:     
             bomb.update(screen)
+        for explosion in Explosion_list:
+            explosion.update(screen)
 
         score_hyogi.update(screen)  # スコアを画面に表示
 
