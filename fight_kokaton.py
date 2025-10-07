@@ -25,6 +25,25 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+class score:
+    def __init__(self):
+        """
+        スコアの初期設定
+        """
+        self.fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        self.score = 0
+        self.img = self.fonto.render("hgp創英角ﾎﾟｯﾌﾟ体", 0, (0, 0, 255))
+        self.rct = self.img.get_rect()
+        self.rct.center = 100, -50
+
+    def update(self, screen: pg.Surface):
+        """
+        スコアを画面に表示する
+        """
+        self.img = self.fonto.render(f"SCORE: {self.score}", True, (0, 0, 255))
+        self.rct = self.img.get_rect(center=(100, HEIGHT - 50))
+        screen.blit(self.img, self.rct)
+
 class Bird:
     """
     ゲームキャラクター（こうかとん）に関するクラス
@@ -154,6 +173,7 @@ def main():
     #     bombs.append(bomb)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]  # リスト内包表記を用いた爆弾リストの生成
 
+    score_hyogi = score()  # スコアクラスのインスタンス生成
     beam = None  # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
     tmr = 0
@@ -183,6 +203,7 @@ def main():
                 if beam is not None and beam.rct.colliderect(bomb.rct):
                     # ビームが爆弾に当たったら，爆弾を消す
                     bombs[b], beam = None, None
+                    score_hyogi.score += 1 # スコアを1点加算
                     bird.change_img(6, screen)  # ビームが爆弾に当たったら，こうかとん画像を切り替える
 
         bombs = [bomb for bomb in bombs if bomb is not None] 
@@ -193,6 +214,9 @@ def main():
             beam.update(screen)   
         for bomb in bombs:     
             bomb.update(screen)
+
+        score_hyogi.update(screen)  # スコアを画面に表示
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
