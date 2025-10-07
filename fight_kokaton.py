@@ -42,7 +42,6 @@ class Explosion:
         """
         self.life -= 1
         screen.blit(self.img[self.life%2], self.rct)
-
         
 
 class score:
@@ -63,6 +62,7 @@ class score:
         self.img = self.fonto.render(f"スコア: {self.score}", True, (0, 0, 255))
         self.rct = self.img.get_rect(center=(100, HEIGHT - 50))
         screen.blit(self.img, self.rct)
+
 
 class Bird:
     """
@@ -255,7 +255,6 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
-
 
 if __name__ == "__main__":
     pg.init()
